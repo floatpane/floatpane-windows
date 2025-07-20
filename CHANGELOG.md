@@ -1,3 +1,15 @@
+## [1.0.6](https://github.com/floatpane/floatpane-windows/compare/v1.0.5...v1.0.6) (2025-07-20)
+
+
+### Bug Fixes
+
+
+* **docs:** update README [skip CI] ([1febea8](https://github.com/floatpane/floatpane-windows/commit/1febea86713bfcc2e22b2850f88e16ab6feac7f5))
+
+
+---
+*This is a beta version that has not been tested, be cautious.*
+
 ## [1.0.5](https://github.com/andrinoff/floatpane-windows/compare/v1.0.4...v1.0.5) (2025-07-20)
 
 
