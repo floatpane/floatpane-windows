@@ -1,3 +1,15 @@
+## [1.0.5](https://github.com/andrinoff/floatpane-windows/compare/v1.0.4...v1.0.5) (2025-07-20)
+
+
+### Bug Fixes
+
+
+* custom footer in release notes ([4c4983a](https://github.com/andrinoff/floatpane-windows/commit/4c4983a315c1ee9c6b4e8ca2da0bca89a3864f92))
+
+
+---
+*This is a beta version that has not been tested, be cautious.*
+
 ## [1.0.4](https://github.com/andrinoff/floatpane-windows/compare/v1.0.3...v1.0.4) (2025-07-20)
 
 
