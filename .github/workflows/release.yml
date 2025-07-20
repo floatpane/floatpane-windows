@@ -7,7 +7,10 @@ on:
 
 jobs:
   release:
-    runs-on: macos-latest
+    strategy:
+      matrix:
+        os: [macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
     permissions:
       contents: write
       pull-requests: write
@@ -24,6 +27,14 @@ jobs:
           node-version: 21
       - name: Install dependencies
         run: npm install
+      - name: Build and package
+        run: |
+          if [ "${{ matrix.os }}" == "windows-latest" ]; then
+            npm run dist:win
+          else
+            npm run dist
+          fi
+        shell: bash
       - name: Semantic Release
         id: semantic
         uses: cycjimmy/semantic-release-action@v4
@@ -31,52 +42,3 @@ jobs:
           branch: master
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-  update-homebrew-cask:
-    name: Update Homebrew Cask
-    needs: release
-    if: needs.release.outputs.new_release_version
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Set Release Version Env
-        run: echo "RELEASE_VERSION=${{ needs.release.outputs.new_release_version }}" >> $GITHUB_ENV
-
-      - name: Download release assets
-        run: |
-          gh release download v${{ env.RELEASE_VERSION }} --pattern "floatpane-*.dmg" --repo ${{ github.repository }}
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Calculate checksums
-        run: |
-          VERSION_NUMBER=${{ env.RELEASE_VERSION }}
-          # Remove 'v' prefix for filename, which matches your electron-builder artifactName
-          VERSION_NUMBER_NO_V=${VERSION_NUMBER#v}
-          echo "ARM64_SHA=$(shasum -a 256 floatpane-${VERSION_NUMBER_NO_V}-arm64.dmg | cut -d' ' -f1)" >> $GITHUB_ENV
-          echo "X64_SHA=$(shasum -a 256 floatpane-${VERSION_NUMBER_NO_V}-x64.dmg | cut -d' ' -f1)" >> $GITHUB_ENV
-
-      - name: Clone Homebrew tap repository
-        run: |
-          git clone https://x-access-token:${{ secrets.PAT }}@github.com/floatpane/floatpane-cask.git
-
-      - name: Update Cask file
-        run: |
-          cd floatpane-cask
-          VERSION_NUMBER=${{ env.RELEASE_VERSION }}
-          # Remove 'v' prefix from version tag for the cask file
-          VERSION_NUMBER_NO_V=${VERSION_NUMBER#v}
-          sed -i "s/version \".*\"/version \"${VERSION_NUMBER_NO_V}\"/" Casks/floatpane.rb
-          sed -i "/on_arm do/,/end/ s/sha256 \".*\"/sha256 \"${{ env.ARM64_SHA }}\"/" Casks/floatpane.rb
-          sed -i "/on_intel do/,/end/ s/sha256 \".*\"/sha256 \"${{ env.X64_SHA }}\"/" Casks/floatpane.rb
-
-      - name: Commit and push changes
-        run: |
-          cd floatpane-cask
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add Casks/floatpane.rb
-          git commit -m "Update cask for floatpane version ${{ env.RELEASE_VERSION }}"
-          git push

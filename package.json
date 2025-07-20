@@ -1,108 +1,87 @@
 {
-  "name": "floatplane",
-  "version": "1.4.8",
-  "description": "A wallpaper manager app for macOS.",
+  "name": "floatplane-windows",
+  "version": "0.0.1",
+  "description": "A wallpaper manager app for Windows.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "build": "webpack --mode production",
     "watch": "webpack --mode development --watch",
-    "pack": "npm run build && electron-builder --mac",
-    "dist": "npm run build && electron-builder --mac --publish=never",
+    "dist": "npm run build && electron-builder --win --publish=never",
     "clean": "rm -rf dist node_modules package-lock.json && npm install"
   },
   "keywords": [
     "wallpaper",
-    "macOS",
+    "windows",
     "desktop"
   ],
   "author": "andrinoff",
   "license": "MIT",
   "dependencies": {
-    "@semantic-release/changelog": "^6.0.3",
-    "@semantic-release/commit-analyzer": "^13.0.1",
-    "@semantic-release/exec": "^7.1.0",
-    "@semantic-release/git": "^10.0.1",
-    "@semantic-release/github": "^11.0.3",
-    "@semantic-release/release-notes-generator": "^14.0.3",
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "regedit": "^5.1.4",
+    "sharp": "^0.33.4",
+    "wallpaper": "^7.2.1"
   },
   "devDependencies": {
     "@babel/core": "^7.23.7",
     "@babel/preset-react": "^7.23.3",
+    "@semantic-release/changelog": "^6.0.3",
+    "@semantic-release/commit-analyzer": "^13.0.1",
+    "@semantic-release/git": "^10.0.1",
+    "@semantic-release/github": "^11.0.3",
+    "@semantic-release/release-notes-generator": "^14.0.3",
     "babel-loader": "^10.0.0",
     "copy-webpack-plugin": "^13.0.0",
     "css-loader": "^7.0.0",
-    "electron": "^37.0.0",
-    "electron-builder": "^26.0.0",
+    "electron": "^31.0.1",
+    "electron-builder": "^24.13.3",
     "html-webpack-plugin": "^5.6.0",
     "style-loader": "^3.3.4",
     "webpack": "^5.89.0",
     "webpack-cli": "^5.1.4"
   },
   "build": {
-    "appId": "com.andrinoff.floatpane",
+    "appId": "com.andrinoff.floatpane.windows",
     "productName": "floatpane",
     "directories": {
       "output": "dist-electron"
     },
     "compression": "maximum",
-    "mac": {
-      "target": {
-        "target": "dmg",
-        "arch": [
-          "arm64",
-          "x64"
-        ]
-      },
-      "identity": null,
-      "artifactName": "${productName}-${version}-${arch}.${ext}",
-      "icon": "icon.icns",
-      "category": "public.app-category.utilities"
-    },
-    "dmg": {
-      "window": {
-        "width": 540,
-        "height": 380
-      },
-      "contents": [
-        {
-          "x": 130,
-          "y": 186,
-          "type": "file"
-        },
-        {
-          "x": 410,
-          "y": 186,
-          "type": "link",
-          "path": "/Applications"
-        }
-      ]
+    "win": {
+      "target": "nsis",
+      "icon": "icon.ico"
     },
     "files": [
       "dist/**/*",
       "main.js",
       "preload.js",
       "package.json",
-      "!**/node_modules/**/*",
-      "!src/**/*",
-      "!webpack.config.js",
-      "!*.md"
+      "!**/node_modules/**/*"
     ],
-    "asar": true,
-    "asarUnpack": []
+    "asar": true
   },
-  "files": [
-    "dist/**/*",
-    "main.js",
-    "preload.js",
-    "package.json",
-    "!**/node_modules/**/*",
-    "!src/**/*",
-    "!webpack.config.js",
-    "!*.md"
-  ],
-  "asar": true,
-  "asarUnpack": []
+  "release": {
+    "branches": [
+      "master"
+    ],
+    "plugins": [
+      "@semantic-release/commit-analyzer",
+      "@semantic-release/release-notes-generator",
+      "@semantic-release/changelog",
+      [
+        "@semantic-release/github",
+        {
+          "assets": [
+            {
+              "path": "dist-electron/floatpane Setup *.exe",
+              "label": "Windows Installer (.exe)"
+            }
+          ]
+        }
+      ],
+      "@semantic-release/git"
+    ]
+  }
 }

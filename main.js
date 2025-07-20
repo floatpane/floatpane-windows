@@ -4,16 +4,17 @@ const {
   ipcMain,
   globalShortcut,
   screen,
-  shell, // shell is already here, which is great
+  shell,
 } = require("electron");
 const path = require("path");
 const fs = require("fs/promises");
-const fsSync = require("fs"); // Use sync version for setup
-const { exec } = require("child_process");
+const fsSync = require("fs");
 const os = require("os");
+const { set } = require("wallpaper");
+const sharp = require("sharp");
+const regedit = require("regedit");
 
 let mainWindow = null;
-let settingsWindow = null;
 
 // --- App Setup: Create Thumbnail Cache Directory ---
 const cacheDir = path.join(app.getPath("userData"), "thumbnails");
@@ -30,10 +31,9 @@ async function getSettings() {
     const settingsFile = await fs.readFile(settingsPath, "utf-8");
     return JSON.parse(settingsFile);
   } catch (error) {
-    // If the file doesn't exist or there's an error, return default settings
     const defaultSettings = {
       theme: "tokyo-night-blue",
-      openCommand: "CommandOrControl+Shift+P",
+      openCommand: "Control+Shift+P", // Default for Windows
     };
     await saveSettings(defaultSettings);
     return defaultSettings;
@@ -44,20 +44,7 @@ async function saveSettings(settings) {
   await fs.writeFile(settingsPath, JSON.stringify(settings, null, 2));
 }
 
-const run = (cmd) =>
-  new Promise((resolve, reject) => {
-    exec(cmd, { maxBuffer: 1024 * 1024 * 10 }, (error, stdout, stderr) => {
-      if (error) return reject(error);
-      if (stderr) return reject(new Error(stderr));
-      resolve(stdout.trim());
-    });
-  });
-
-async function setWallpaper(imagePath) {
-  const script = `osascript -e 'tell application "System Events" to tell every desktop to set picture to (POSIX file "${imagePath}")'`;
-  return run(script);
-}
-
+// --- Main Window Creation ---
 function createWindow() {
   const currentDisplay = screen.getDisplayNearestPoint(
     screen.getCursorScreenPoint()
@@ -80,19 +67,12 @@ function createWindow() {
     frame: false,
     transparent: true,
     show: false,
-    vibrancy: "light",
     alwaysOnTop: true,
     level: "floating",
     visibleOnAllWorkspaces: true,
     resizable: false,
     focusable: true,
   });
-
-  console.log("Main window created.");
-
-  if (process.platform === "darwin") {
-    app.dock.hide();
-  }
 
   mainWindow.loadFile(path.join(__dirname, "dist/index.html"));
 
@@ -105,19 +85,11 @@ function createWindow() {
   });
 }
 
-ipcMain.on("toggle-settings", () => {
-  if (mainWindow) {
-    mainWindow.webContents.send("toggle-settings");
-  }
-});
-
+// --- App Lifecycle Events ---
 app.whenReady().then(async () => {
-  console.log("App is ready.");
   const settings = await getSettings();
-  console.log("Settings loaded:", settings);
   globalShortcut.register(settings.openCommand, () => {
-    console.log("Global shortcut triggered.");
-    if (mainWindow) {
+    if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.close();
     } else {
       createWindow();
@@ -126,9 +98,7 @@ app.whenReady().then(async () => {
 });
 
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    app.quit();
-  }
+  app.quit();
 });
 
 app.on("will-quit", () => {
@@ -137,17 +107,14 @@ app.on("will-quit", () => {
 
 // --- IPC Handlers ---
 
-ipcMain.handle("get-settings", async () => {
-  return await getSettings();
-});
+ipcMain.handle("get-settings", getSettings);
 
 ipcMain.handle("save-settings", async (event, settings) => {
   await saveSettings(settings);
-  // You might want to re-register the shortcut if it changed
   globalShortcut.unregisterAll();
   const newSettings = await getSettings();
   globalShortcut.register(newSettings.openCommand, () => {
-    if (mainWindow) {
+    if (mainWindow && !mainWindow.isDestroyed()) {
       mainWindow.close();
     } else {
       createWindow();
@@ -179,10 +146,7 @@ ipcMain.handle("get-themes", async () => {
   }
 });
 
-// **FIXED**: Handler to open external links securely in the user's default browser.
-ipcMain.handle("open-external-link", async (event, url) => {
-  await shell.openExternal(url);
-});
+ipcMain.handle("open-external-link", (event, url) => shell.openExternal(url));
 
 ipcMain.handle("get-wallpapers", async () => {
   const wallpaperDir = path.join(os.homedir(), "wallpapers");
@@ -191,59 +155,44 @@ ipcMain.handle("get-wallpapers", async () => {
       fsSync.mkdirSync(wallpaperDir, { recursive: true });
     }
     const files = await fs.readdir(wallpaperDir);
-    return files.filter((file) => /\.(jpg|jpeg|png|heic|webp)$/i.test(file));
+    return files.filter((file) => /\.(jpg|jpeg|png|webp)$/i.test(file));
   } catch (error) {
     console.error(`Error reading wallpaper directory: ${wallpaperDir}`, error);
     throw new Error(`Could not read wallpapers from: ~/wallpapers.`);
   }
 });
 
-ipcMain.handle("open-wallpapers-folder", async () => {
+ipcMain.handle("open-wallpapers-folder", () => {
   const wallpaperDir = path.join(os.homedir(), "wallpapers");
-  try {
-    if (!fsSync.existsSync(wallpaperDir)) {
-      fsSync.mkdirSync(wallpaperDir, { recursive: true });
-    }
-    await shell.openPath(wallpaperDir);
-  } catch (error) {
-    console.error(`Failed to open wallpaper directory: ${wallpaperDir}`, error);
-    throw error;
+  if (!fsSync.existsSync(wallpaperDir)) {
+    fsSync.mkdirSync(wallpaperDir, { recursive: true });
   }
+  shell.openPath(wallpaperDir);
 });
 
-ipcMain.handle("get-app-version", () => {
-  return app.getVersion();
-});
+ipcMain.handle("get-app-version", () => app.getVersion());
 
-ipcMain.handle("set-wallpaper", async (event, imageName) => {
+ipcMain.handle("set-wallpaper", (event, imageName) => {
   const imagePath = path.join(os.homedir(), "wallpapers", imageName);
-  try {
-    await setWallpaper(imagePath);
-    return imagePath;
-  } catch (error) {
-    console.error(`Failed to set wallpaper: ${imageName}`, error);
-    throw error;
-  }
+  return set(imagePath);
 });
 
 ipcMain.handle("get-current-wallpaper", async () => {
+  const keyPath = "HKCU\\Control Panel\\Desktop";
   try {
-    return await run(
-      `osascript -e 'tell application "System Events" to tell every desktop to get picture'`
-    );
+    const result = await regedit.promisified.list(keyPath);
+    if (
+      result &&
+      result[keyPath] &&
+      result[keyPath].values &&
+      result[keyPath].values.Wallpaper
+    ) {
+      return result[keyPath].values.Wallpaper.value;
+    }
+    return ""; // Return empty string if not found
   } catch (error) {
-    console.error("Failed to get current wallpaper", error);
-    throw error;
-  }
-});
-
-ipcMain.handle("get-image-as-base64", async (event, fullPath) => {
-  try {
-    const data = await fs.readFile(fullPath);
-    return data.toString("base64");
-  } catch (error) {
-    console.error(`Failed to read file: ${fullPath}`, error);
-    throw error;
+    console.error("Failed to get current wallpaper from registry", error);
+    return ""; // Return empty string on error
   }
 });
 
@@ -257,8 +206,7 @@ ipcMain.handle("get-thumbnail", async (event, imageName) => {
     return data.toString("base64");
   } catch {
     try {
-      const sipsCommand = `sips -Z 400 "${sourcePath}" --out "${thumbPath}"`;
-      await run(sipsCommand);
+      await sharp(sourcePath).resize(400).toFile(thumbPath);
       const data = await fs.readFile(thumbPath);
       return data.toString("base64");
     } catch (generationError) {
@@ -274,5 +222,11 @@ ipcMain.handle("get-thumbnail", async (event, imageName) => {
 ipcMain.on("hide-window", () => {
   if (mainWindow) {
     mainWindow.close();
+  }
+});
+
+ipcMain.on("toggle-settings", () => {
+  if (mainWindow) {
+    mainWindow.webContents.send("toggle-settings");
   }
 });

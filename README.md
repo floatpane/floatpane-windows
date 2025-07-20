@@ -1,10 +1,10 @@
-# floatpane
+# floatpane for Windows
 
 <p align="center">
   <img src="https://raw.githubusercontent.com/floatpane/floatpane/master/assets/icon.svg" alt="floatpane Logo" width="128">
 </p>
 
-<h3 align="center">A lightweight, floating wallpaper selector for macOS.</h3>
+<h3 align="center">A lightweight, floating wallpaper selector for Windows.</h3>
 
 <p align="center">
   <img src="https://img.shields.io/github/v/release/floatpane/floatpane?style=for-the-badge" alt="Version">
@@ -13,7 +13,7 @@
 
 ---
 
-**floatpane** is a minimal utility for macOS that lets you quickly browse and set your desktop wallpaper. It's designed to be invoked with a global keyboard shortcut and floats above all other windows, making it compatible with tiling window managers like **Aerospace** and **yabai**.
+**floatpane** is a minimal utility for Windows that lets you quickly browse and set your desktop wallpaper. It's designed to be invoked with a global keyboard shortcut and floats above all other windows.
 
 ## 🎬 Demo
 
@@ -21,9 +21,8 @@
 
 ## ✨ Features
 
-- **⚡ Summon:** Bring up the wallpaper grid from anywhere with `Cmd+Shift+P`.
+- **⚡ Summon:** Bring up the wallpaper grid from anywhere with `Ctrl+Shift+P`.
 - **🖼️ Floating Window:** Floats on top of all other applications for easy access.
-- **🧩 Tiling WM Friendly:** Integrates smoothly with Aerospace, yabai, and Amethyst.
 - **⌨️ Keyboard Navigation:** Use arrow keys to browse, `Enter` to apply, and `Esc` to dismiss.
 - **🚀 Lazy Loading:** Thumbnails load as you scroll for a fast, responsive experience.
 - **✅ Current Wallpaper Indicator:** Your active wallpaper is always highlighted.
@@ -31,53 +30,17 @@
 
 ## 📋 Requirements
 
-- macOS
-- [Node.js](https://nodejs.org/) and npm
-- A `~/wallpapers` directory containing your images.
-- [GitHub CLI](https://cli.github.com/) (only for publishing releases).
+- Windows
+- A `C:\Users\YourUser\wallpapers` directory containing your images.
 
 ## 🚀 Installation
 
-### Homebrew (Recommended)
-
-```bash
-brew tap floatpane/floatpane
-brew install floatpane
-# Fix for macOS Gatekeeper
-xattr -cr /Applications/floatpane.app
-```
-
-### For Developers
-
-1.  **Clone the repository:**
-
-    ```sh
-    git clone https://github.com/floatpane/floatpane.git
-    cd floatpane
-    ```
-
-2.  **Install dependencies:**
-
-    ```sh
-    npm install
-    ```
-
-3.  **Run in development mode:**
-
-    You'll need two terminal windows for this.
-
-    - In **Terminal 1**, start the webpack watcher:
-      ```sh
-      npm run watch
-      ```
-    - In **Terminal 2**, start the Electron app:
-      ```sh
-      npm start
-      ```
+1.  **Download the latest `.exe` installer** from the project's [GitHub Releases page](https://github.com/floatpane/floatpane/releases).
+2.  **Run the installer** and follow the on-screen instructions.
 
 ## 🎨 Available Themes
 
-Floatpane includes a variety of themes to match your style. You can change the theme in the settings (`Cmd+,`).
+Floatpane includes a variety of themes to match your style. You can change the theme in the settings (`Ctrl+,`).
 
 - Aura
 - Ayu Dark
@@ -96,4 +59,4 @@ Floatpane includes a variety of themes to match your style. You can change the t
 
 ## 📜 License
 
-This project is licensed under the **MIT License** - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the **MIT License**.
