@@ -59,8 +59,7 @@
       "dist/**/*",
       "main.js",
       "preload.js",
-      "package.json",
-      "!**/node_modules/**/*"
+      "package.json"
     ],
     "asar": true
   },
