@@ -1,3 +1,10 @@
+## [1.0.1](https://github.com/andrinoff/floatpane-windows/compare/v1.0.0...v1.0.1) (2025-07-20)
+
+
+### Bug Fixes
+
+* **actions:** update package.json version ([36d8d99](https://github.com/andrinoff/floatpane-windows/commit/36d8d99efbc7b64b3a11a0b9d1137f8420523185))
+
 # 1.0.0 (2025-07-20)
 
 
