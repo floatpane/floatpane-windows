@@ -1,6 +1,6 @@
 {
   "name": "floatplane-windows",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "A wallpaper manager app for Windows.",
   "main": "main.js",
   "scripts": {
