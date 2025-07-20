@@ -1,4 +1,4 @@
-name: Release and Update Homebrew Cask
+name: Release Windows
 
 on:
   push:
