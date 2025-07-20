@@ -7,8 +7,8 @@
 <h3 align="center">A lightweight, floating wallpaper selector for Windows.</h3>
 
 <p align="center">
-  <img src="https://img.shields.io/github/v/release/floatpane/floatpane?style=for-the-badge" alt="Version">
-  <img src="https://img.shields.io/github/license/floatpane/floatpane?style=for-the-badge" alt="License">
+  <img src="https://img.shields.io/github/v/release/floatpane/floatpane-windows?style=for-the-badge" alt="Version">
+  <img src="https://img.shields.io/github/license/floatpane/floatpane-windows?style=for-the-badge" alt="License">
 </p>
 
 ---
@@ -35,7 +35,7 @@
 
 ## 🚀 Installation
 
-1.  **Download the latest `.exe` installer** from the project's [GitHub Releases page](https://github.com/floatpane/floatpane/releases).
+1.  **Download the latest `.exe` installer** from the project's [GitHub Releases page](https://github.com/floatpane/floatpane-windows/releases).
 2.  **Run the installer** and follow the on-screen instructions.
 
 ## 🎨 Available Themes
