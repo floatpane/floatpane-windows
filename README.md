@@ -38,6 +38,18 @@
 1.  **Download the latest `.exe` installer** from the project's [GitHub Releases page](https://github.com/floatpane/floatpane-windows/releases).
 2.  **Run the installer** and follow the on-screen instructions.
 
+## 🌅 Wallpapers
+
+You can find the wallpapers I use (4k) in [andrinoff/wallpapers](https://github.com/andrinoff/wallpapers)
+
+OR
+
+Automatically download and move to floatpane
+
+```sh
+curl -sS https://andrinoff.com/wallpapers/download.sh | sh
+```
+
 ## 🎨 Available Themes
 
 Floatpane includes a variety of themes to match your style. You can change the theme in the settings (`Ctrl+,`).
